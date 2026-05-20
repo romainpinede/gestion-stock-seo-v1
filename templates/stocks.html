@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Stocks</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>Gestionnaire de stocks des ventes organiques (Shopify)</h1>
+        <p>Stocks mis à jour depuis un export Shopify</p>
+    </header>
+
+    <nav>
+        <a href="/forecast">Prévisions</a>
+        <a href="/products">Produits</a>
+        <a href="/stocks">Stocks</a>
+        <a href="/sales">Ventes SEO</a>
+    </nav>
+
+    <h2>Stocks</h2>
+
+    {% if last_stock_update %}
+        <p class="stock-update-info {% if not stock_update_is_today %}stock-update-warning{% endif %}">
+            Dernier import des stocks : {{ last_stock_update }}
+        </p>
+    {% else %}
+        <p class="stock-update-info stock-update-warning">
+            Aucun import de stock effectué
+        </p>
+    {% endif %}
+    
+
+    <p class="help-text">
+        Les stocks sont mis à jour uniquement depuis un export Shopify.
+        Si un produit suivi dans le logiciel n'apparaît pas dans le dernier export, son stock est indiqué comme inconnu.
+    </p>
+
+    <h3>Importer un export de stock Shopify</h3>
+
+    <form action="/import-stocks" method="POST" enctype="multipart/form-data">
+        <label>Fichier CSV</label><br>
+        <input type="file" name="file" accept=".csv" required>
+
+        <br><br>
+
+        <button type="submit">Importer les stocks</button>
+    </form>
+
+    <hr>
+
+    <h3>Stocks actuels</h3>
+
+    <div class="product-list">
+        {% for name, colors in grouped_stock_rows.items() %}
+        <details class="product-block">
+            <summary>{{ name }}</summary>
+
+            <div class="product-content">
+                {% for color, sizes in colors.items() %}
+                <details class="color-block">
+                    <summary>Couleur : {{ color }}</summary>
+
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Genre</th>
+                                <th>Couleur</th>
+                                <th>Taille</th>
+                                <th>Stock</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for p in sizes %}
+                            <tr>
+                                <td>{{ p.gender }}</td>
+                                <td>{{ p.color }}</td>
+                                <td>{{ p.size }}</td>
+                                <td>{{ p.stock }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+
+                </details>
+                {% endfor %}
+            </div>
+        </details>
+        {% endfor %}
+    </div>
+
+</div>
+</body>
+</html>

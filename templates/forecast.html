@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Prévisions</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>Gestionnaire de stocks des ventes organiques (Shopify)</h1>
+        <p>Prévision des ruptures et des besoins de stock</p>
+    </header>
+
+    <nav>
+        <a href="/forecast">Prévisions</a>
+        <a href="/products">Produits</a>
+        <a href="/stocks">Stocks</a>
+        <a href="/sales">Ventes SEO</a>
+    </nav>
+
+    <h2>Prévisions</h2>
+    <p class="help-text">
+        Cette page estime les jours avant rupture et les quantités à commander à partir des ventes récentes, du stock actuel et de la saisonnalité.
+    </p>
+
+    <div class="report-box">
+        {% if report_status.days_left == 0 %}
+            <h3>Commande à passer aujourd'hui</h3>
+        {% else %}
+            <h3>Commande à passer dans {{ report_status.days_left }} jours</h3>
+        {% endif %}
+    
+        <a class="button-link" href="/report">Voir le rapport</a>
+    </div>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Produit</th>
+                <th>Couleur</th>
+                <th>Taille</th>
+                <th>Stock</th>
+                <th>(Estimation) Jours avant rupture</th>
+                <th>
+                    (Estimation) À commander
+                    {% if next_order_date %}
+                        <br>
+                        <span class="table-date-title">le {{ next_order_date.strftime("%d/%m/%Y") }}</span>
+                    {% endif %}
+                </th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for row in forecast_rows %}
+            <tr>
+                <td class="product-name-cell">
+                    {% if row.name|length > 35 %}
+                        <details class="name-details">
+                            <summary>{{ row.name[:35] }}...</summary>
+                            <p class="full-name">{{ row.name }}</p>
+                        </details>
+                    {% else %}
+                        {{ row.name }}
+                    {% endif %}
+                </td>
+
+                <td>{{ row.color }}</td>
+                <td>{{ row.size }}</td>
+                <td>{{ row.stock }}</td>
+
+                <td>
+                    {% if row.days_before_empty is not none %}
+                        {{ row.stock_warning }} {{ row.days_before_empty }} jours
+                    {% else %}
+                        {{ row.stock_warning }} -
+                    {% endif %}
+                </td>
+
+                <td>
+                    {% if row.quantity_to_order > 0 %}
+                        {{ row.quantity_to_order }} pièces
+                    {% else %}
+                        -
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>

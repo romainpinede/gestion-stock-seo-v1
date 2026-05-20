@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Ventes SEO</title>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<div class="container">
+
+    <header>
+        <h1>Gestionnaire de stocks des ventes organiques (Shopify)</h1>
+        <p>Ventes utilisées pour estimer le rythme naturel des commandes</p>
+    </header>
+
+    <nav>
+        <a href="/forecast">Prévisions</a>
+        <a href="/products">Produits</a>
+        <a href="/stocks">Stocks</a>
+        <a href="/sales">Ventes SEO</a>
+    </nav>
+
+    <h2>Ventes SEO</h2>
+
+    {% if last_sales_import %}
+        <p class="stock-update-info {% if not sales_import_is_today %}stock-update-warning{% endif %}">
+            Dernier import des ventes SEO : {{ last_sales_import }}
+        </p>
+    {% else %}
+        <p class="stock-update-info stock-update-warning">
+            Aucun import de ventes SEO effectué
+        </p>
+    {% endif %}
+
+    <p class="help-text">
+        Cette page sert à importer les ventes SEO/organiques depuis un export GA4.
+        Les ventes issues de sources payantes sont ignorées.
+        <br>
+        <br>
+        Pour obtenir le fichier depuis GA4 : aller dans Rapports > Monétisation > Achats e-commerce,
+        ajouter les dimensions Date, ID de la transaction, Nom de l'article, Variante de l'article et Source/Support de la session,
+        puis exporter le rapport au format CSV.
+    </p>
+
+    <h3>Importer un export GA4</h3>
+
+    <form action="/import-sales" method="POST" enctype="multipart/form-data">
+        <label>Fichier CSV GA4</label><br>
+        <input type="file" name="file" accept=".csv" required>
+
+        <br><br>
+
+        <button type="submit">Importer les ventes</button>
+    </form>
+
+    <hr>
+
+    <h3>Ventes importées</h3>
+
+    <table>
+        <thead>
+            <tr>
+                <th>Date</th>
+                <th>Produit</th>
+                <th>Couleur</th>
+                <th>Taille</th>
+                <th>Quantité</th>
+                <th>Source</th>
+                <th>Supprimer</th>
+            </tr>
+        </thead>
+
+        <tbody>
+            {% for sale in sales %}
+            <tr>
+                <td>{{ sale.date }}</td>
+
+                <td class="product-name-cell">
+                    {% if sale.product_name|length > 35 %}
+                        <details class="name-details">
+                            <summary>{{ sale.product_name[:35] }}...</summary>
+                            <p class="full-name">{{ sale.product_name }}</p>
+                        </details>
+                    {% else %}
+                        {{ sale.product_name }}
+                    {% endif %}
+                </td>
+
+                <td>{{ sale.product_color }}</td>
+                <td>{{ sale.product_size }}</td>
+                <td>{{ sale.quantity }}</td>
+                <td>{{ sale.source }}</td>
+                <td><a href="/delete-sale/{{ sale.id }}">Supprimer</a></td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</div>
+</body>
+</html>
